@@ -79,7 +79,7 @@ const ResultsPage = () => {
                 </button>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=700&fit=crop"
+                src={chestXrayImg}
                 alt="Chest X-ray"
                 className="w-full h-[500px] object-cover"
               />

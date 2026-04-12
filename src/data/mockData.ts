@@ -16,21 +16,21 @@ export const mockAnalysisResult: AnalysisResult = {
     effusion: 0.8,
   },
   physicianNotes: 'Patient complains of shortness of breath and fever for 3 days. X-ray confirms AI finding of opacity in the right lung base consistent with pneumonia.',
-  imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=700&fit=crop',
+  imageUrl: chestXrayImg,
 };
 
 export const mockHistory: HistoryItem[] = [
   {
     id: '1',
     patient: 'mahmoud',
-    xrayThumbnail: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=80&h=80&fit=crop',
+    xrayThumbnail: chestXrayImg,
     result: 'Normal',
     date: '3/10/2026',
   },
   {
     id: '2',
     patient: 'mahmoud',
-    xrayThumbnail: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=80&h=80&fit=crop',
+    xrayThumbnail: chestXrayImg,
     result: 'Normal',
     date: '3/10/2026',
   },
