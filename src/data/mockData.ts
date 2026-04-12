@@ -1,4 +1,5 @@
 import { AnalysisResult, HistoryItem } from '@/services/api';
+import chestXrayImg from '@/assets/chest-xray.jpg';
 
 export const mockAnalysisResult: AnalysisResult = {
   id: '48291',

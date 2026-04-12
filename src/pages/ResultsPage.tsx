@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Printer, Share2, Search, Contrast, Pencil } from 'lucide-react';
+import chestXrayImg from '@/assets/chest-xray.jpg';
 import Navbar from '@/components/Navbar';
 import DiagnosisCard from '@/components/DiagnosisCard';
 import { Button } from '@/components/ui/button';
