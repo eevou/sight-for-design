@@ -10,17 +10,17 @@ const Navbar = ({ variant = 'hub' }: NavbarProps) => {
   const location = useLocation();
 
   const hubLinks = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Records', path: '/records' },
+    { label: 'Dashboard', path: '#' },
+    { label: 'Records', path: '/history' },
     { label: 'New Scan', path: '/' },
-    { label: 'Settings', path: '/settings' },
+    { label: 'Settings', path: '#' },
   ];
 
   const systemLinks = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Patients', path: '/patients' },
-    { label: 'Analysis', path: '/analysis' },
-    { label: 'Settings', path: '/settings' },
+    { label: 'Dashboard', path: '#' },
+    { label: 'Patients', path: '/history' },
+    { label: 'Analysis', path: '#' },
+    { label: 'Settings', path: '#' },
   ];
 
   const links = variant === 'hub' ? hubLinks : systemLinks;
