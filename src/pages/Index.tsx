@@ -1,17 +1,42 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, FileText, Shield, Info } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import FileUploader from '@/components/FileUploader';
 import StatusBadge from '@/components/StatusBadge';
+import { uploadXray } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
 const UploadPage = () => {
   const navigate = useNavigate();
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileSelect = useCallback((file: File) => {
-    console.log('File selected:', file.name);
-    // In real app, would call uploadXray(file) then navigate to results
-    navigate('/results/48291');
+  const handleFileSelect = useCallback(async (file: File) => {
+    setUploading(true);
+    try {
+      if (USE_MOCK) {
+        // Simulate upload delay then navigate with mock ID
+        await new Promise((r) => setTimeout(r, 1000));
+        navigate('/results/48291');
+      } else {
+        const response = await uploadXray(file);
+        toast({ title: 'Upload successful', description: response.message });
+        navigate(`/results/${response.id}`);
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not connect to server. Using demo mode.',
+        variant: 'destructive',
+      });
+      // Fallback to mock result
+      navigate('/results/48291');
+    } finally {
+      setUploading(false);
+    }
   }, [navigate]);
 
   return (
@@ -45,7 +70,12 @@ const UploadPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* Upload Zone */}
           <div className="lg:col-span-2">
-            <FileUploader onFileSelect={handleFileSelect} />
+            <FileUploader onFileSelect={handleFileSelect} disabled={uploading} />
+            {uploading && (
+              <div className="mt-4 text-center text-sm text-muted-foreground">
+                Uploading and analyzing...
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}

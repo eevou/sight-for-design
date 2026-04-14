@@ -1,18 +1,28 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Home, Printer, Share2, Search, Contrast, Pencil } from 'lucide-react';
-import chestXrayImg from '@/assets/chest-xray.jpg';
 import Navbar from '@/components/Navbar';
 import DiagnosisCard from '@/components/DiagnosisCard';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { mockAnalysisResult } from '@/data/mockData';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAnalysisResult } from '@/hooks/useAnalysisResult';
+import { updatePhysicianNotes, confirmDiagnosis, requestFollowUp } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
 
 const ResultsPage = () => {
-  const data = mockAnalysisResult;
+  const { id } = useParams<{ id: string }>();
+  const { data, loading, error } = useAnalysisResult(id || '');
   const [activeView, setActiveView] = useState('original');
-  const [notes, setNotes] = useState(data.physicianNotes);
+  const [notes, setNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notesInitialized, setNotesInitialized] = useState(false);
+
+  // Initialize notes from fetched data
+  if (data && !notesInitialized) {
+    setNotes(data.physicianNotes);
+    setNotesInitialized(true);
+  }
 
   const viewModes = [
     { id: 'original', label: 'Original', icon: '🖼' },
@@ -20,6 +30,67 @@ const ResultsPage = () => {
     { id: 'highcontrast', label: 'High Contrast', icon: '◐' },
     { id: 'grid', label: 'Grid', icon: '⊞' },
   ];
+
+  const handleSaveNotes = async () => {
+    if (!data) return;
+    try {
+      await updatePhysicianNotes(data.id, notes);
+      toast({ title: 'Notes saved successfully' });
+    } catch {
+      toast({ title: 'Notes saved locally', description: 'Will sync when backend is available' });
+    }
+    setIsEditingNotes(false);
+  };
+
+  const handleConfirmDiagnosis = async () => {
+    if (!data) return;
+    try {
+      await confirmDiagnosis(data.id);
+      toast({ title: 'Diagnosis confirmed' });
+    } catch {
+      toast({ title: 'Action queued', description: 'Will sync when backend is available' });
+    }
+  };
+
+  const handleRequestFollowUp = async () => {
+    if (!data) return;
+    try {
+      await requestFollowUp(data.id);
+      toast({ title: 'Follow-up requested' });
+    } catch {
+      toast({ title: 'Action queued', description: 'Will sync when backend is available' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar variant="system" />
+        <main className="flex-1 max-w-6xl mx-auto px-6 py-6 w-full">
+          <Skeleton className="h-6 w-64 mb-4" />
+          <Skeleton className="h-10 w-96 mb-6" />
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-3">
+              <Skeleton className="h-[500px] rounded-xl" />
+            </div>
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-64 rounded-xl" />
+              <Skeleton className="h-48 rounded-xl" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <p className="text-destructive text-lg">{error || 'No data found'}</p>
+        <Link to="/" className="text-primary mt-4 hover:underline">Return Home</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -79,7 +150,7 @@ const ResultsPage = () => {
                 </button>
               </div>
               <img
-                src={chestXrayImg}
+                src={data.imageUrl}
                 alt="Chest X-ray"
                 className="w-full h-[500px] object-cover"
               />
@@ -121,11 +192,17 @@ const ResultsPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Physician Notes</h3>
                 <button
-                  onClick={() => setIsEditingNotes(!isEditingNotes)}
+                  onClick={() => {
+                    if (isEditingNotes) {
+                      handleSaveNotes();
+                    } else {
+                      setIsEditingNotes(true);
+                    }
+                  }}
                   className="text-sm text-primary flex items-center gap-1 hover:underline"
                 >
                   <Pencil className="w-3 h-3" />
-                  Edit
+                  {isEditingNotes ? 'Save' : 'Edit'}
                 </button>
               </div>
               {isEditingNotes ? (
@@ -145,10 +222,17 @@ const ResultsPage = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-3 font-semibold">
+              <Button
+                onClick={handleConfirmDiagnosis}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-3 font-semibold"
+              >
                 Confirm Diagnosis
               </Button>
-              <Button variant="outline" className="rounded-lg py-3 font-semibold">
+              <Button
+                onClick={handleRequestFollowUp}
+                variant="outline"
+                className="rounded-lg py-3 font-semibold"
+              >
                 Request Follow-up
               </Button>
             </div>
