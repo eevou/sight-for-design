@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 
 interface FileUploaderProps {
   onFileSelect: (file: File) => void;
+  disabled?: boolean;
 }
 
-const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
+const FileUploader = ({ onFileSelect, disabled }: FileUploaderProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
